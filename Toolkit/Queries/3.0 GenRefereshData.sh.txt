@@ -1,12 +1,13 @@
 ./dsdgen -update 1
 
 rm -f ${TPCDS_REFERESHDATA_DIR}/s_zip_to_*
-rm -f ${TPCDS_REFERESHDATA_DIR}/s_customer
-rm -f ${TPCDS_REFERESHDATA_DIR}/s_item
-rm -f ${TPCDS_REFERESHDATA_DIR}/s_store
-rm -f ${TPCDS_REFERESHDATA_DIR}/s_call_center
-rm -f ${TPCDS_REFERESHDATA_DIR}/s_web_site
-rm -f ${TPCDS_REFERESHDATA_DIR}/s_warehouse
-rm -f ${TPCDS_REFERESHDATA_DIR}/s_web_page
-rm -f ${TPCDS_REFERESHDATA_DIR}/s_promotion
-rm -f ${TPCDS_REFERESHDATA_DIR}/s_catalog_page
+rm -f ${TPCDS_REFERESHDATA_DIR}/s_customer_${UPDATE}.dat
+rm -f ${TPCDS_REFERESHDATA_DIR}/s_item_${UPDATE}.dat
+rm -f ${TPCDS_REFERESHDATA_DIR}/s_store_${UPDATE}.dat
+rm -f ${TPCDS_REFERESHDATA_DIR}/s_call_center_${UPDATE}.dat
+rm -f ${TPCDS_REFERESHDATA_DIR}/s_web_site_${UPDATE}.dat
+rm -f ${TPCDS_REFERESHDATA_DIR}/s_warehouse_${UPDATE}.dat
+rm -f ${TPCDS_REFERESHDATA_DIR}/s_web_page_${UPDATE}.dat
+rm -f ${TPCDS_REFERESHDATA_DIR}/s_promotion_${UPDATE}.dat
+rm -f ${TPCDS_REFERESHDATA_DIR}/s_catalog_page_${UPDATE}.dat
+rm -f ${TPCDS_REFERESHDATA_DIR}/s_customer_address_${UPDATE}.dat
