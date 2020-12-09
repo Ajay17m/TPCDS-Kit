@@ -1,8 +1,0 @@
-export TPC_ROOT_DIR=''
-export TPCDS_DBNAME=''
-export scale='1'
-export UPDATE='1'
-export TPCDS_GENDATA_DIR='${TPC_ROOT_DIR}/src/data'
-export TPCDS_REFERESHDATA_DIR='${TPC_ROOT_DIR}/refreshdata'
-export TPC_WORK_DIR='${TPC_ROOT_DIR}/genqueries'
-

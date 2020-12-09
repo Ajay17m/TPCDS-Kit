@@ -1,2 +1,0 @@
-cd ${TPC_ROOT_DIR}\bin
-./dsdgen dsdgen –scale ${SCALE} –dir ${TPCDS_GENDATA_DIR}

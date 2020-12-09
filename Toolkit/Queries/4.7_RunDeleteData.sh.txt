@@ -1,9 +1,0 @@
-while IFS="|" read -r date1 date2
-do
-	execute 4.8_DM_DeleteData_Timed.sql
-done < delete_${UPDATE}.dat
-
-while IFS="|" read -r date1 date2
-do
-	execute 4.9_DM_Inventory_delete_Timed.sql
-done < inventory_delete_${UPDATE}.dat
