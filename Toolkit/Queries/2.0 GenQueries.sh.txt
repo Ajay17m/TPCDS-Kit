@@ -1,1 +1,2 @@
-dsqgen
+cd ${TPC_ROOT_DIR}\bin
+./dsqgen –scale ${SCALE} –dir ${TPC_WORK_DIR}

@@ -1,4 +1,5 @@
-./dsdgen -update 1
+cd ${TPC_ROOT_DIR}\bin
+./dsdgen -update ${UPDATE} –scale ${SCALE} –dir ${TPCDS_REFERESHDATA_DIR}
 
 rm -f ${TPCDS_REFERESHDATA_DIR}/s_zip_to_*
 rm -f ${TPCDS_REFERESHDATA_DIR}/s_customer_${UPDATE}.dat

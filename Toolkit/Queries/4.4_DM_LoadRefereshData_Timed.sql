@@ -1,7 +1,5 @@
 USE ${TPCDS_DBNAME};
 
-export UPDATE='1'
-
 LOAD DATA LOCAL INPATH "${TPCDS_REFERESHDATA_DIR}/s_purchase_lineitem_${UPDATE}*.dat " OVERWRITE INTO TABLE s_purchase_lineitem_text;
 LOAD DATA LOCAL INPATH "${TPCDS_REFERESHDATA_DIR}/s_purchase_${UPDATE}*.dat " OVERWRITE INTO TABLE s_purchase_text;
 LOAD DATA LOCAL INPATH "${TPCDS_REFERESHDATA_DIR}/s_catalog_order_${UPDATE}*.dat " OVERWRITE INTO TABLE s_catalog_order_text;
