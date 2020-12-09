@@ -35,9 +35,9 @@ create table call_center
     cc_gmt_offset             double,
     cc_tax_percentage         double
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/call_center/*" INTO TABLE call_center;
+clustered by (cc_division) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists catalog_page;
 create table catalog_page
@@ -52,9 +52,9 @@ create table catalog_page
     cp_description            string,
     cp_type                   string
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/catalog_page/*" INTO TABLE catalog_page;
+clustered by (cp_department) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists catalog_returns;
 create table catalog_returns
@@ -87,9 +87,9 @@ create table catalog_returns
     cr_store_credit           double,
     cr_net_loss               double
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/catalog_returns/*" INTO TABLE catalog_returns;
+clustered by (cr_warehouse_sk) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists catalog_sales;
 create table catalog_sales
@@ -129,9 +129,9 @@ create table catalog_sales
     cs_net_paid_inc_ship_tax  double,
     cs_net_profit             double
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/catalog_sales/*" INTO TABLE catalog_sales;
+clustered by (cs_warehouse_sk) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists customer;
 create table customer
@@ -155,9 +155,9 @@ create table customer
     c_email_address           string,
     c_last_review_date        string
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/customer/*" INTO TABLE customer;
+clustered by (c_preferred_cust_flag) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists customer_address;
 create table customer_address
@@ -176,9 +176,9 @@ create table customer_address
     ca_gmt_offset             double,
     ca_location_type          string
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/customer_address/*" INTO TABLE customer_address;
+clustered by (ca_country) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists customer_demographics;
 create table customer_demographics
@@ -193,9 +193,9 @@ create table customer_demographics
     cd_dep_employed_count     int,
     cd_dep_college_count      int
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/customer_demographics/*" INTO TABLE customer_demographics;
+clustered by (cd_marital_status) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists date_dim;
 create table date_dim
@@ -229,9 +229,9 @@ create table date_dim
     d_current_quarter         string,
     d_current_year            string
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/date_dim/*" INTO TABLE date_dim;
+clustered by (d_year) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists household_demographics;
 create table household_demographics
@@ -242,9 +242,9 @@ create table household_demographics
     hd_dep_count              int,
     hd_vehicle_count          int
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/household_demographics/*" INTO TABLE household_demographics;
+clustered by (hd_income_band_sk) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists income_band;
 create table income_band
@@ -253,9 +253,9 @@ create table income_band
     ib_lower_bound            int,
     ib_upper_bound            int
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/income_band/*" INTO TABLE income_band;
+clustered by (ib_income_band_sk) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists inventory;
 create table inventory
@@ -265,9 +265,9 @@ create table inventory
     inv_warehouse_sk          int,
     inv_quantity_on_hand      bigint
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/inventory/*" INTO TABLE inventory;
+clustered by (inv_warehouse_sk) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists item;
 create table item
@@ -295,9 +295,9 @@ create table item
     i_manager_id              int,
     i_product_name            string
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/item/*" INTO TABLE item;
+clustered by (i_category_id) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists promotion;
 create table promotion
@@ -322,9 +322,9 @@ create table promotion
     p_purpose                 string,
     p_discount_active         string
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/promotion/*" INTO TABLE promotion;
+clustered by (p_item_sk) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists reason;
 create table reason
@@ -333,8 +333,9 @@ create table reason
     r_reason_id               string,
     r_reason_desc             string
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
+clustered by (r_reason_id) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists ship_mode;
 create table ship_mode
@@ -346,9 +347,9 @@ create table ship_mode
     sm_carrier                string,
     sm_contract               string
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/ship_mode/*" INTO TABLE ship_mode;
+clustered by (sm_type) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists store;
 create table store
@@ -383,9 +384,9 @@ create table store
     s_gmt_offset              double,
     s_tax_precentage          double
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/store/*" INTO TABLE store;
+clustered by (s_division_id) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists store_returns;
 create table store_returns
@@ -411,9 +412,9 @@ create table store_returns
     sr_store_credit           double,
     sr_net_loss               double
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/store_returns/*" INTO TABLE store_returns;
+clustered by (sr_store_sk) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists store_sales;
 create table store_sales
@@ -442,9 +443,9 @@ create table store_sales
     ss_net_paid_inc_tax       double,
     ss_net_profit             double
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/store_sales/*" INTO TABLE store_sales;
+clustered by (ss_store_sk) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists time_dim;
 create table time_dim
@@ -460,9 +461,9 @@ create table time_dim
     t_sub_shift               string,
     t_meal_time               string
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/time_dim/*" INTO TABLE time_dim;
+clustered by (t_hour) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists warehouse;
 create table warehouse
@@ -482,9 +483,9 @@ create table warehouse
     w_country                 string,
     w_gmt_offset              double
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/warehouse/*" INTO TABLE warehouse;
+clustered by (w_country) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists web_page;
 create table web_page
@@ -504,9 +505,9 @@ create table web_page
     wp_image_count            int,
     wp_max_ad_count           int
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/web_page/*" INTO TABLE web_page;
+clustered by (wp_type) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists web_returns;
 create table web_returns
@@ -536,9 +537,9 @@ create table web_returns
     wr_account_credit         double,
     wr_net_loss               double
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/web_returns/*" INTO TABLE web_returns;
+clustered by (wr_web_page_sk) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists web_sales;
 create table web_sales
@@ -578,9 +579,9 @@ create table web_sales
     ws_net_paid_inc_ship_tax  double,
     ws_net_profit             double
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/web_sales/*" INTO TABLE web_sales;
+clustered by (ws_web_page_sk) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');
 
 drop table if exists web_site;
 create table web_site
@@ -612,6 +613,6 @@ create table web_site
     web_gmt_offset            double,
     web_tax_percentage        double
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/web_site/*" INTO TABLE web_site;
+clustered by (web_name) into 3 buckets 
+store as orc
+tblproperties('transactiona'='true');

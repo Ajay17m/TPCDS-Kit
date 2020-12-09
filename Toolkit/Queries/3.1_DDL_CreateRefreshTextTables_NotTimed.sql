@@ -1,5 +1,7 @@
-drop table if exists  s_purchase_lineitem;
-create table s_purchase_lineitem (  
+USE ${TPCDS_DBNAME};
+
+drop table if exists s_purchase_lineitem_text;
+create table s_purchase_lineitem_text (
               plin_purchase_id           int,
               plin_line_number           int,
               plin_item_id            string,
@@ -10,9 +12,10 @@ create table s_purchase_lineitem (
               plin_comment            string
              ) 
 ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';  
-drop table if exists  s_purchase;
-create table s_purchase (  
+FIELDS TERMINATED BY '|';
+
+drop table if exists s_purchase_text;
+create table s_purchase_text (
               purc_purchase_id           int,
               purc_store_id           string,
               purc_customer_id        string,
@@ -23,9 +26,10 @@ create table s_purchase (
               purc_comment            string
               )
 ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';  
-drop table if exists  s_catalog_order;
-create table s_catalog_order (  
+FIELDS TERMINATED BY '|';
+
+drop table if exists s_catalog_order_text;
+create table s_catalog_order_text (
               cord_order_id              int,
               cord_bill_customer_id   string,
               cord_ship_customer_id   string,
@@ -36,9 +40,10 @@ create table s_catalog_order (
               cord_order_comments     string
               )
 ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';  
-drop table if exists  s_web_order;
-create table s_web_order (  
+FIELDS TERMINATED BY '|';
+
+drop table if exists s_web_order_text;
+create table s_web_order_text (
               word_order_id              int,
               word_bill_customer_id   string,
               word_ship_customer_id   string,
@@ -49,9 +54,10 @@ create table s_web_order (
               word_order_comments     string,
               )
 ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';  
-drop table if exists  s_catalog_order_lineitem;
-create table s_catalog_order_lineitem (  
+FIELDS TERMINATED BY '|';
+
+drop table if exists s_catalog_order_lineitem_text;
+create table s_catalog_order_lineitem_text (
               clin_order_id              int,
               clin_line_number           int,
               clin_item_id            string,
@@ -66,9 +72,10 @@ create table s_catalog_order_lineitem (
               clin_ship_cost          double
               )
 ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';  
-drop table if exists  s_web_order_lineitem;
-create table s_web_order_lineitem (  
+FIELDS TERMINATED BY '|';
+
+drop table if exists s_web_order_lineitem_text;
+create table s_web_order_lineitem_text (
               wlin_order_id              int,
               wlin_line_number           int,
               wlin_item_id            string,
@@ -82,9 +89,10 @@ create table s_web_order_lineitem (
               wlin_web_page_id        string
               )
 ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';  
-drop table if exists  s_store_returns;
-create table s_store_returns (  
+FIELDS TERMINATED BY '|';
+
+drop table if exists s_store_returns_text;
+create table s_store_returns_text (
               sret_store_id           string,
               sret_purchase_id        string,
               sret_line_number           int,
@@ -104,9 +112,10 @@ create table s_store_returns (
               sret_reason_id          string
               )
 ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';  
-drop table if exists  s_catalog_returns;
-create table s_catalog_returns (  
+FIELDS TERMINATED BY '|';
+
+drop table if exists s_catalog_returns_text;
+create table s_catalog_returns_text (
               cret_call_center_id     string,
               cret_order_id              int,
               cret_line_number           int,
@@ -129,9 +138,10 @@ create table s_catalog_returns (
               cret_warehouse_id       string
               )
 ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '|';  
-drop table if exists  s_web_returns;
-create table s_web_returns (  
+FIELDS TERMINATED BY '|';
+
+drop table if exists s_web_returns_text;
+create table s_web_returns_text (
               wret_web_page_id        string,
               wret_order_id              int,
               wret_line_number           int,
@@ -152,8 +162,9 @@ create table s_web_returns (
               )
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
-drop table if exists  s_inventory;
-create table s_inventory (  
+
+drop table if exists s_inventory_text;
+create table s_inventory_text (
               invn_warehouse_id       string,
               invn_item_id            string,
               invn_date               string,
