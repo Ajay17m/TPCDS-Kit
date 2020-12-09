@@ -1,7 +1,7 @@
 USE ${TPCDS_DBNAME};
 
-drop table if exists call_center_text;
-create table call_center_text
+drop table if exists call_center;
+create table call_center
 (
     cc_call_center_sk         int,
     cc_call_center_id         string,
@@ -39,8 +39,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/call_center/*" INTO TABLE call_center;
 
-drop table if exists catalog_page_text;
-create table catalog_page_text
+drop table if exists catalog_page;
+create table catalog_page
 (
     cp_catalog_page_sk        int,
     cp_catalog_page_id        string,
@@ -56,8 +56,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/catalog_page/*" INTO TABLE catalog_page;
 
-drop table if exists catalog_returns_text;
-create table catalog_returns_text
+drop table if exists catalog_returns;
+create table catalog_returns
 (
     cr_returned_date_sk       int,
     cr_returned_time_sk       int,
@@ -91,8 +91,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/catalog_returns/*" INTO TABLE catalog_returns;
 
-drop table if exists catalog_sales_text;
-create table catalog_sales_text
+drop table if exists catalog_sales;
+create table catalog_sales
 (
     cs_sold_date_sk           int,
     cs_sold_time_sk           int,
@@ -133,8 +133,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/catalog_sales/*" INTO TABLE catalog_sales;
 
-drop table if exists customer_text;
-create table customer_text
+drop table if exists customer;
+create table customer
 (
     c_customer_sk             int,
     c_customer_id             string,
@@ -159,8 +159,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/customer/*" INTO TABLE customer;
 
-drop table if exists customer_address_text;
-create table customer_address_text
+drop table if exists customer_address;
+create table customer_address
 (
     ca_address_sk             int,
     ca_address_id             string,
@@ -180,8 +180,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/customer_address/*" INTO TABLE customer_address;
 
-drop table if exists customer_demographics_text;
-create table customer_demographics_text
+drop table if exists customer_demographics;
+create table customer_demographics
 (
     cd_demo_sk                int,
     cd_gender                 string,
@@ -197,8 +197,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/customer_demographics/*" INTO TABLE customer_demographics;
 
-drop table if exists date_dim_text;
-create table date_dim_text
+drop table if exists date_dim;
+create table date_dim
 (
     d_date_sk                 int,
     d_date_id                 string,
@@ -233,8 +233,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/date_dim/*" INTO TABLE date_dim;
 
-drop table if exists household_demographics_text;
-create table household_demographics_text
+drop table if exists household_demographics;
+create table household_demographics
 (
     hd_demo_sk                int,
     hd_income_band_sk         int,
@@ -246,8 +246,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/household_demographics/*" INTO TABLE household_demographics;
 
-drop table if exists income_band_text;
-create table income_band_text
+drop table if exists income_band;
+create table income_band
 (
     ib_income_band_sk         int,
     ib_lower_bound            int,
@@ -257,8 +257,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/income_band/*" INTO TABLE income_band;
 
-drop table if exists inventory_text;
-create table inventory_text
+drop table if exists inventory;
+create table inventory
 (
     inv_date_sk               int,
     inv_item_sk               int,
@@ -269,8 +269,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/inventory/*" INTO TABLE inventory;
 
-drop table if exists item_text;
-create table item_text
+drop table if exists item;
+create table item
 (
     i_item_sk                 int,
     i_item_id                 string,
@@ -299,8 +299,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/item/*" INTO TABLE item;
 
-drop table if exists promotion_text;
-create table promotion_text
+drop table if exists promotion;
+create table promotion
 (
     p_promo_sk                int,
     p_promo_id                string,
@@ -326,8 +326,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/promotion/*" INTO TABLE promotion;
 
-drop table if exists reason_text;
-create table reason_text
+drop table if exists reason;
+create table reason
 (
     r_reason_sk               int,
     r_reason_id               string,
@@ -336,8 +336,8 @@ create table reason_text
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 
-drop table if exists ship_mode_text;
-create table ship_mode_text
+drop table if exists ship_mode;
+create table ship_mode
 (
     sm_ship_mode_sk           int,
     sm_ship_mode_id           string,
@@ -350,8 +350,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/ship_mode/*" INTO TABLE ship_mode;
 
-drop table if exists store_text;
-create table store_text
+drop table if exists store;
+create table store
 (
     s_store_sk                int,
     s_store_id                string,
@@ -387,8 +387,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/store/*" INTO TABLE store;
 
-drop table if exists store_returns_text;
-create table store_returns_text
+drop table if exists store_returns;
+create table store_returns
 (
     sr_returned_date_sk       int,
     sr_return_time_sk         int,
@@ -415,8 +415,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/store_returns/*" INTO TABLE store_returns;
 
-drop table if exists store_sales_text;
-create table store_sales_text
+drop table if exists store_sales;
+create table store_sales
 (
     ss_sold_date_sk           int,
     ss_sold_time_sk           int,
@@ -446,8 +446,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/store_sales/*" INTO TABLE store_sales;
 
-drop table if exists time_dim_text;
-create table time_dim_text
+drop table if exists time_dim;
+create table time_dim
 (
     t_time_sk                 int,
     t_time_id                 string,
@@ -464,8 +464,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/time_dim/*" INTO TABLE time_dim;
 
-drop table if exists warehouse_text;
-create table warehouse_text
+drop table if exists warehouse;
+create table warehouse
 (
     w_warehouse_sk            int,
     w_warehouse_id            string,
@@ -486,8 +486,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/warehouse/*" INTO TABLE warehouse;
 
-drop table if exists web_page_text;
-create table web_page_text
+drop table if exists web_page;
+create table web_page
 (
     wp_web_page_sk            int,
     wp_web_page_id            string,
@@ -508,8 +508,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/web_page/*" INTO TABLE web_page;
 
-drop table if exists web_returns_text;
-create table web_returns_text
+drop table if exists web_returns;
+create table web_returns
 (
     wr_returned_date_sk       int,
     wr_returned_time_sk       int,
@@ -540,8 +540,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/web_returns/*" INTO TABLE web_returns;
 
-drop table if exists web_sales_text;
-create table web_sales_text
+drop table if exists web_sales;
+create table web_sales
 (
     ws_sold_date_sk           int,
     ws_sold_time_sk           int,
@@ -582,8 +582,8 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 LOAD DATA LOCAL INPATH "${TPCDS_GENDATA_DIR}/web_sales/*" INTO TABLE web_sales;
 
-drop table if exists web_site_text;
-create table web_site_text
+drop table if exists web_site;
+create table web_site
 (
     web_site_sk               int,
     web_site_id               string,
