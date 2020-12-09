@@ -297,9 +297,9 @@ function run_tpcds_queries {
   result=$?
   if [ "$result" -ne 1 ]; then 
     logInfo "Running TPCDS queries. Will take a few hours.. "
-	cd $TPCDS_ROOT_DIR/tools
-	rm -f ${TPCDS_GENQUERIES_DIR}/*.sql
-	./dsqgen –scale ${SCALE} –dir ${TPC_WORK_DIR}
+    cd $TPCDS_ROOT_DIR/tools
+    rm -f ${TPCDS_GENQUERIES_DIR}/*.sql
+    echo `./dsqgen –dir ${TPC_WORK_DIR} –scale ${SCALE}`
     run_tpcds_common
   fi
 }
@@ -322,13 +322,10 @@ function create_spark_tables {
   done 
   result=$?
   if [ "$result" -ne 1 ]; then 
-  fi
-  result=$?	
-  if [ "$result" -ne 1 ]; then 
     current_dir=`pwd`
-	cd $TPCDS_ROOT_DIR/tools
-	rm -f ${TPCDS_GENDATA_DIR}/*.dat
-	./dsdgen –scale ${SCALE} –dir ${TPCDS_GENDATA_DIR}
+    cd $TPCDS_ROOT_DIR/tools
+    rm -f ${TPCDS_GENDATA_DIR}/*.dat
+    echo `./dsdgen –dir ${TPCDS_GENDATA_DIR} –scale ${SCALE}`
     cd $SPARK_HOME
     DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
@@ -425,7 +422,7 @@ function run_load_test {
       logError "${TPCDS_LOG_DIR}/spark-tpcds.log"
     else
       echo ""
-	  cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/LT/
+      cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/LT/
       logInfo "Load test completed successfully.."
     fi
     cd $current_dir
@@ -438,12 +435,11 @@ function run_power_test {
   cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/PT/
 }
 
-function dm_test{
+function dm_test {
   check_environment
   output_dir=$TPCDS_WORK_DIR
   cleanup $TPCDS_WORK_DIR
   trap 'handle_shutdown $$ $output_dir; exit' SIGHUP SIGQUIT SIGINT SIGTERM
-
   for i in `ls ${TPCDS_ROOT_DIR}/src/DM/*.sql`
   do
     baseName="$(basename $i)"
@@ -457,9 +453,9 @@ function dm_test{
   result=$?
   if [ "$result" -ne 1 ]; then 
     current_dir=`pwd`
-	cd $TPCDS_ROOT_DIR/tools
-	rm -f ${TPCDS_REFRESHDATA_DIR}/*.dat
-	./dsdgen –scale ${SCALE} –dir ${TPCDS_REFRESHDATA_DIR}
+    cd $TPCDS_ROOT_DIR/tools
+    rm -f ${TPCDS_REFRESHDATA_DIR}/*.dat
+    echo `./dsdgen -UPDATE ${UPDATE} –dir ${TPCDS_REFRESHDATA_DIR} –scale ${SCALE}`
     cd $SPARK_HOME
     DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
@@ -471,24 +467,24 @@ function dm_test{
     script_pid=$!
     bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/CreateViews.sql > ${TPCDS_WORK_DIR}/CreateViews.out 2>&1
     script_pid=$!
-	while IFS="|" read -r date1 date2
-	do
-		$1 >> ${TPCDS_WORK_DIR}/DataDelete.out
-		$date1 >> ${TPCDS_WORK_DIR}/DataDelete.out
-		$date2 >> ${TPCDS_WORK_DIR}/DataDelete.out
-		bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/DataDelete.sql >> ${TPCDS_WORK_DIR}/	DataDelete.out 2>&1
-		script_pid=$!
-	done < ${TPCDS_REFRESHDATA_DIR}/delete_${UPDATE}.dat
+    while IFS="|" read -r date1 date2
+    do
+        $1 >> ${TPCDS_WORK_DIR}/DataDelete.out
+        $date1 >> ${TPCDS_WORK_DIR}/DataDelete.out
+        $date2 >> ${TPCDS_WORK_DIR}/DataDelete.out
+        bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/DataDelete.sql >> ${TPCDS_WORK_DIR}/    DataDelete.out 2>&1
+        script_pid=$!
+    done < ${TPCDS_REFRESHDATA_DIR}/delete_${UPDATE}.dat
 
-	while IFS="|" read -r date1 date2
-	do
-		$1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
-		$date1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
-		$date2 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
-		execute 4.9_DM_Inventory_delete_Timed.sql
-		bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/InventoryDelete.sql >> ${TPCDS_WORK_DIR}/InventoryDelete.out 2>&1
-		script_pid=$!
-	done < ${TPCDS_REFRESHDATA_DIR}/inventory_delete_${UPDATE}.dat
+    while IFS="|" read -r date1 date2
+    do
+        $1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
+        $date1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
+        $date2 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
+        execute 4.9_DM_Inventory_delete_Timed.sql
+        bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/InventoryDelete.sql >> ${TPCDS_WORK_DIR}/InventoryDelete.out 2>&1
+        script_pid=$!
+    done < ${TPCDS_REFRESHDATA_DIR}/inventory_delete_${UPDATE}.dat
 
     cont=1
     error_code=0
