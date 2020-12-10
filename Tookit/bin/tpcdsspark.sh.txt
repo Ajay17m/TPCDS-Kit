@@ -212,7 +212,7 @@ function run_query{
     cd $SPARK_HOME
     DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
-    logInfo "Creating tables. Will take a few minutes ..."
+    logInfo "Creating $1 tables. Will take a few minutes ..."
     ProgressBar 1 $2
     bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
     script_pid=$!
