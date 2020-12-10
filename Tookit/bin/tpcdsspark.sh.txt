@@ -95,7 +95,7 @@ check_createtables() {
   DRIVER_OPTIONS="--driver-memory 4g --driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
   EXECUTOR_OPTIONS="--executor-memory 2g --conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
   logInfo "Checking pre-reqs for running TPC-DS queries. May take a few seconds.."
-  bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/row_counts.sql > ${TPCDS_WORK_DIR}/rowcounts.out 2>&1 &
+  bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/row_counts.sql > ${TPCDS_WORK_DIR}/rowcounts.out 2>&1
   cat ${TPCDS_WORK_DIR}/rowcounts.out | grep -v "Time" | grep -v "SLF4J" >> ${TPCDS_WORK_DIR}/rowcounts.rrn
   file1=${TPCDS_WORK_DIR}/rowcounts.rrn
   file2=${TPCDS_ROOT_DIR}/src/rowcounts.expected
@@ -248,8 +248,6 @@ function run_query() {
 
 function run_tpcds_common {
   output_dir=$TPCDS_WORK_DIR
-  cp ${TPCDS_GENQUERIES_DIR}/*.sql $TPCDS_WORK_DIR
-
   ${TPCDS_ROOT_DIR}/bin/runqueries.sh $SPARK_HOME $TPCDS_WORK_DIR $TPCDS_DBNAME > ${TPCDS_WORK_DIR}/runqueries.out 2>&1 &
   script_pid=$!
   trap 'handle_shutdown $$ $output_dir; exit' SIGHUP SIGQUIT SIGINT SIGTERM
@@ -315,8 +313,21 @@ function run_subset_tpcds_queries {
   NUM_QUERIES=`expr $NUM_QUERIES + 1` 
   if [ "$result" -ne 1 ]; then 
     logInfo "Running TPCDS queries. Will take a few minutes depending upon the number of queries specified.. "
-    run_tpcds_common
-  fi 
+    cd $TPCDS_ROOT_DIR/tools
+    rm -f ${TPCDS_GENQUERIES_DIR}/*.sql
+    echo "./dsqgen –dir ${TPC_WORK_DIR} –scale ${SCALE}"
+    echo `./dsqgen –dir ${TPC_WORK_DIR} –scale ${SCALE}`
+    GENQUERIES=`ls ${TPCDS_GENQUERIES_DIR}|wc -l`
+    if [ "$GENQUERIES" -gt 99] ; then
+      for query_no in `cat ${TPCDS_WORK_DIR}/runlist.txt`
+      do
+        cp ${TPCDS_GENQUERIES_DIR}/query${query_no}.sql $TPCDS_WORK_DIR
+      done
+      run_tpcds_common
+    else
+      logError "Failed to create power queries. Please review the following logs"
+    fi
+  fi
 }
 
 function run_tpcds_queries {
@@ -341,8 +352,15 @@ function run_tpcds_queries {
     logInfo "Running TPCDS queries. Will take a few hours.. "
     cd $TPCDS_ROOT_DIR/tools
     rm -f ${TPCDS_GENQUERIES_DIR}/*.sql
+    echo "./dsqgen –dir ${TPC_WORK_DIR} –scale ${SCALE}"
     echo `./dsqgen –dir ${TPC_WORK_DIR} –scale ${SCALE}`
-    run_tpcds_common
+    GENQUERIES=`ls ${TPCDS_GENQUERIES_DIR}|wc -l`
+    if [ "$GENQUERIES" -gt 99] ; then
+      cp ${TPCDS_GENQUERIES_DIR}/*.sql $TPCDS_WORK_DIR
+      run_tpcds_common
+    else
+      logError "Failed to create power queries. Please review the following logs"
+    fi
   fi
 }
 
@@ -406,7 +424,7 @@ function run_load_test {
       DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
       EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
       logInfo "Loading ACID tables. Will take a few minutes ..."
-      ProgressBar 1 47
+      ProgressBar 1 27
       SQL="LoadACIDTable"
       spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/${SQL}.sql > ${TPCDS_WORK_DIR}/${SQL}.out 2>&1 &
       script_pid=$!
@@ -415,7 +433,7 @@ function run_load_test {
       while [  $cont -gt 0 ]; do
         progress=`cat ${TPCDS_WORK_DIR}/${SQL}.out | grep -i "time taken" | wc -l`
         progress=`expr $progress + 2`
-        ProgressBar ${progress} 47
+        ProgressBar ${progress} 27
         if [ -e ${TPCDS_WORK_DIR}/${SQL}.out ]; then
           error_code=`cat ${TPCDS_WORK_DIR}/${SQL}.out | grep -i "error" | wc -l`
         fi
@@ -423,21 +441,21 @@ function run_load_test {
         if [ $? == 1 ]; then
           error_code=1
         fi
-       if [ "$error_code" -gt 0 ] || [ "$progress" -gt 46 ] ; then 
-         cont=-1
-       fi
-       sleep 0.1
+        if [ "$error_code" -gt 0 ] || [ "$progress" -gt 26 ] ; then 
+          cont=-1
+        fi
+        sleep 0.1
       done  
       if [ "$error_code" -gt 0 ] ; then 
-       logError "Failed to create spark tables. Please review the following logs"
-       logError "${TPCDS_WORK_DIR}/${SQL}.out"
-       logError "${TPCDS_WORK_DIR}/DropStageTables.out"
-       logError "${TPCDS_LOG_DIR}/spark-tpcds.log"
+        logError "Failed to create spark tables. Please review the following logs"
+        logError "${TPCDS_WORK_DIR}/${SQL}.out"
+        logError "${TPCDS_WORK_DIR}/DropStageTables.out"
+        logError "${TPCDS_LOG_DIR}/spark-tpcds.log"
       else
-       echo ""
-       cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/LT/
-       run_query "DropStageTables" 26
-       logInfo "Load test completed successfully.."
+        echo ""
+        cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/LT/
+        run_query "DropStageTables" 26
+        logInfo "Load test completed successfully.."
       fi
       cd $current_dir
     fi

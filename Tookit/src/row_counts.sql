@@ -1,13 +1,3 @@
-------------------------------------------------------------------------------
--- Licensed Materials - Property of IBM
---
--- (C) COPYRIGHT International Business Machines Corp. 2017
--- All Rights Reserved.
---
--- US Government Users Restricted Rights - Use, duplication or
--- disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
-------------------------------------------------------------------------------
-
 USE ${TPCDS_DBNAME};
 
 select count(*) from call_center;
