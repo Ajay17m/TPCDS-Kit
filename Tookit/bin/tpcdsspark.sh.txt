@@ -468,7 +468,7 @@ function run_load_test {
 
 function run_power_test {
   run_tpcds_queries
-  if [ "$errorcode" -eq 0 ] ; then
+  if [ "$error_code" -eq 0 ] ; then
     cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/PT/
     cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/PT/
   else
@@ -497,8 +497,9 @@ function dm_test {
     cd $TPCDS_ROOT_DIR/tools
     rm -f ${TPCDS_REFRESHDATA_DIR}/*.dat
     echo `./dsdgen -UPDATE ${UPDATE} –dir ${TPCDS_REFRESHDATA_DIR} –scale ${SCALE}`
+    rm -rf s_zip_to_*.dat s_customer*.dat s_item*.dat s_store*.dat s_call_center*.dat s_web_site*.dat s_warehouse*.dat s_web_page*.dat s_promotion*.dat s_catalog_page*.dat
     run_query "RefreshData" 20
-    if [ "$error_code" -ne 1]; then
+    if [ "$error_code" -ne 1 ] ; then
       run_query "DropTextTables" 10
       run_query "CreateViews" 7
       while IFS="|" read -r date1 date2
@@ -524,21 +525,21 @@ function dm_test {
 }
 function run_troughput_test {  
   run_tpcds_queries
-  if [ "$errorcode" -eq 0 ] ; then
+  if [ "$error_code" -eq 0 ] ; then
     cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT1/
     cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT1/
     dm_test
-    if [ "$errorcode" -eq 0 ] ; then
+    if [ "$error_code" -eq 0 ] ; then
       cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/DM1/
       run_tpcds_queries
-      if [ "$errorcode" -eq 0 ] ; then
+      if [ "$error_code" -eq 0 ] ; then
         cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT2/
         cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT2/
       else
         logError "PT Test 2 failed.."
       fi
         dm_test
-        if [ "$errorcode" -eq 0 ] ; then
+        if [ "$error_code" -eq 0 ] ; then
           cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/DM2/
         else
           logError "DM Test 2 failed.."
@@ -547,7 +548,7 @@ function run_troughput_test {
       logError "DM Test 1 failed.."
     fi
   else
-    logError "Queries failed.."
+    logError "PT Test 1 failed.."
   fi
 }
 
