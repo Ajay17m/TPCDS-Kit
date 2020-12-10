@@ -218,7 +218,7 @@ function run_query() {
     cd $SPARK_HOME
     DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
-    logInfo "Creating $1 tables. Will take a few minutes ..."
+    logInfo "Running $1 tables. Will take a few minutes ..."
     ProgressBar 1 $2
     bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
     script_pid=$!
@@ -241,7 +241,8 @@ function run_query() {
       sleep 0.1
     done  
     if [ "$error_code" -gt 0 ] ; then 
-      logError "Failed to create spark tables. Please review the following logs"
+      echo ""
+      logError "Failed to create $1 tables. Please review the following logs"
       logError "${TPCDS_WORK_DIR}/$1.out"
       logError "${TPCDS_LOG_DIR}/spark-tpcds.log"
     else
@@ -258,9 +259,9 @@ function run_query2() {
     cd $SPARK_HOME
     DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
-    logInfo "Creating $1 tables. Will take a few minutes ..."
+    logInfo "Running $1 tables. Will take a few minutes ..."
     ProgressBar 1 $2
-    spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
+    spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive --conf spark.kryoserializer.buffer.max.mb=1024 -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
     script_pid=$!
     cont=1
     error_code=0
@@ -281,7 +282,8 @@ function run_query2() {
       sleep 0.1
     done  
     if [ "$error_code" -gt 0 ] ; then 
-      logError "Failed to create spark tables. Please review the following logs"
+      echo ""
+      logError "Failed to create $1 tables. Please review the following logs"
       logError "${TPCDS_WORK_DIR}/$1.out"
       logError "${TPCDS_LOG_DIR}/spark-tpcds.log"
     else
@@ -525,29 +527,34 @@ function dm_test {
     run_query2 "RefreshACID" 11
     if [ "$error_code" -ne 1 ] ; then
       run_query "DropTextTables" 10
-      run_query "CreateViews" 7
-      while IFS="|" read -r date1 date2
-      do
-        $1 >> ${TPCDS_WORK_DIR}/DataDelete.out
-        $date1 >> ${TPCDS_WORK_DIR}/DataDelete.out
-        $date2 >> ${TPCDS_WORK_DIR}/DataDelete.out
-        template ${TPCDS_ROOT_DIR}/src/DM/DataDelete.sql > ${output_dir}/DataDelete.sql
-        run_query "DataDelete" 7
-      done < ${TPCDS_REFRESHDATA_DIR}/delete_${UPDATE}.dat
-
-      while IFS="|" read -r date1 date2
-      do
-        $1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
-        $date1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
-        $date2 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
-        template ${TPCDS_ROOT_DIR}/src/DM/DataDelete.sql > ${output_dir}/InventoryDelete.sql
-        run_query "InventoryDelete" 7
-      done < ${TPCDS_REFRESHDATA_DIR}/inventory_delete_${UPDATE}.dat
+      run_query2 "CreateViews" 7
+      run_query2 "InsertFromViews" 7
+      error_code=$?
+      if [ "$error_code" -ne 1 ] ; then
+        while IFS="|" read -r date1 date2
+        do
+          echo $1 >> ${TPCDS_WORK_DIR}/DataDelete.out
+          echo $date1 >> ${TPCDS_WORK_DIR}/DataDelete.out
+          echo $date2 >> ${TPCDS_WORK_DIR}/DataDelete.out
+          template ${TPCDS_ROOT_DIR}/src/DM/DataDelete.sql > ${output_dir}/DataDelete.sql
+          run_query2 "DataDelete" 7
+        done < ${TPCDS_REFRESHDATA_DIR}/delete_${UPDATE}.dat
+        while IFS="|" read -r date1 date2
+        do
+          echo $1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
+          echo $date1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
+          echo $date2 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
+          template ${TPCDS_ROOT_DIR}/src/DM/DataDelete.sql > ${output_dir}/InventoryDelete.sql
+          run_query2 "InventoryDelete" 7
+        done < ${TPCDS_REFRESHDATA_DIR}/inventory_delete_${UPDATE}.dat
+      else
+        logerror 'Failed to create views'
+      fi
     fi
     cd $current_dir
   fi
 }
-function run_troughput_test {  
+function run_troughput_test {
   run_tpcds_queries
   if [ "$error_code" -eq 0 ] ; then
     cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT1/

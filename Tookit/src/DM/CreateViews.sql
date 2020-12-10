@@ -1,7 +1,7 @@
 USE ${TPCDS_DBNAME};
 
 --LF_SS
-CREATE view ssv as
+create or replace ssv as
 SELECT d_date_sk ss_sold_date_sk,
 t_time_sk ss_sold_time_sk,
 i_item_sk ss_item_sk,
@@ -17,7 +17,7 @@ i_wholesale_cost ss_wholesale_cost,
 i_current_price ss_list_price,
 plin_sale_price ss_sales_price,
 (i_current_price-plin_sale_price)*plin_quantity ss_ext_discount_amt,
-plin_sale_price * plin_quantity ss_ext_sales_price,
+plin_sale_price * plin_quantity ss_ext_sales_price,	
 i_wholesale_cost * plin_quantity ss_ext_wholesale_cost,
 i_current_price * plin_quantity ss_ext_list_price,
 i_current_price * s_tax_precentage ss_ext_tax,
@@ -38,11 +38,10 @@ AND i_rec_end_date is NULL
 AND s_rec_end_date is NULL;
 
 
-INSERT INTO store_sales SELECT * FROM ssv;
 
 --LF_SR
 
-CREATE view srv as
+create or replace srv as
 SELECT d_date_sk sr_returned_date_sk
 ,t_time_sk sr_return_time_sk
 ,i_item_sk sr_item_sk
@@ -54,23 +53,23 @@ SELECT d_date_sk sr_returned_date_sk
 ,r_reason_sk sr_reason_sk
 ,sret_ticket_number sr_ticket_number
 ,sret_return_qty sr_return_quantity
-,sret_return_amt sr_return_amt
+,sret_return_amount sr_return_amt
 ,sret_return_tax sr_return_tax
-,sret_return_amt + sret_return_tax sr_return_amt_inc_tax
+,sret_return_amount + sret_return_tax sr_return_amt_inc_tax
 ,sret_return_fee sr_fee
 ,sret_return_ship_cost sr_return_ship_cost
 ,sret_refunded_cash sr_refunded_cash
 ,sret_reversed_charge sr_reversed_charge
 ,sret_store_credit sr_store_credit
-,sret_return_amt+sret_return_tax+sret_return_fee
+,sret_return_amount+sret_return_tax+sret_return_fee
 -sret_refunded_cash-sret_reversed_charge-sret_store_credit sr_net_loss
 FROM s_store_returns
 LEFT OUTER JOIN date_dim
 ON (cast(sret_return_date as date) = d_date)
 LEFT OUTER JOIN time_dim
-ON (( cast(substr(sret_return_time,1,2) AS integer)*3600
-+cast(substr(sret_return_time,4,2) AS integer)*60
-+cast(substr(sret_return_time,7,2) AS integer)) = t_time)
+ON (( cast(substr(sret_return_time,1,2) AS int)*3600
++cast(substr(sret_return_time,4,2) AS int)*60
++cast(substr(sret_return_time,7,2) AS int)) = t_time)
 LEFT OUTER JOIN item ON (sret_item_id = i_item_id)
 LEFT OUTER JOIN customer ON (sret_customer_id = c_customer_id)
 LEFT OUTER JOIN store ON (sret_store_id = s_store_id)
@@ -79,10 +78,9 @@ WHERE i_rec_end_date IS NULL
 AND s_rec_end_date IS NULL;
 
 
-INSERT INTO store_returns SELECT * FROM srv;
 
 --LF_WS
-CREATE VIEW wsv AS
+create or replace wsv AS
 SELECT d1.d_date_sk ws_sold_date_sk,
 t_time_sk ws_sold_time_sk,
 d2.d_date_sk ws_ship_date_sk,
@@ -133,10 +131,9 @@ LEFT OUTER JOIN warehouse ON (wlin_warehouse_id = w_warehouse_id)
 LEFT OUTER JOIN promotion ON (wlin_promotion_id = p_promo_id);
 
 
-INSERT INTO web_sales SELECT * FROM wsv;
 
 --LF_WR
-CREATE VIEW wrv AS
+create or replace wrv AS
 SELECT d_date_sk wr_return_date_sk
 ,t_time_sk wr_return_time_sk
 ,i_item_sk wr_item_sk
@@ -163,8 +160,8 @@ SELECT d_date_sk wr_return_date_sk
 ,wret_return_amt+wret_return_tax+wret_return_fee
 -wret_refunded_cash-wret_reversed_charge-wret_account_credit wr_net_loss
 FROM s_web_returns LEFT OUTER JOIN date_dim ON (cast(wret_return_date as date) = d_date)
-LEFT OUTER JOIN time_dim ON ((CAST(SUBSTR(wret_return_time,1,2) AS integer)*3600
-+CAST(SUBSTR(wret_return_time,4,2) AS integer)*60+CAST(SUBSTR(wret_return_time,7,2) AS integer))=t_time)
+LEFT OUTER JOIN time_dim ON ((CAST(SUBSTR(wret_return_time,1,2) AS int)*3600
++CAST(SUBSTR(wret_return_time,4,2) AS int)*60+CAST(SUBSTR(wret_return_time,7,2) AS int))=t_time)
 LEFT OUTER JOIN item ON (wret_item_id = i_item_id)
 LEFT OUTER JOIN customer c1 ON (wret_return_customer_id = c1.c_customer_id)
 LEFT OUTER JOIN customer c2 ON (wret_refund_customer_id = c2.c_customer_id)
@@ -172,10 +169,9 @@ LEFT OUTER JOIN reason ON (wret_reason_id = r_reason_id)
 LEFT OUTER JOIN web_page ON (wret_web_page_id = WP_WEB_PAGE_id)
 WHERE i_rec_end_date IS NULL AND wp_rec_end_date IS NULL;
 
-INSERT INTO web_returns SELECT * FROM wrv;
 
 --LF_CS
-CREATE view csv as
+create or replace csv as
 SELECT d1.d_date_sk cs_sold_date_sk
 ,t_time_sk cs_sold_time_sk
 ,d2.d_date_sk cs_ship_date_sk
@@ -228,12 +224,11 @@ LEFT OUTER JOIN warehouse ON (clin_warehouse_id = w_warehouse_id)
 LEFT OUTER JOIN item ON (clin_item_id = i_item_id AND i_rec_end_date IS NULL)
 LEFT OUTER JOIN promotion ON (clin_promotion_id = p_promo_id);
 
-INSERT INTO catalog_sales SELECT * FROM csv;
 
 
 --LF_CR
 
-CREATE VIEW crv as
+create or replace crv as
 SELECT d_date_sk cr_returned_date_sk
 ,t_time_sk cr_returned_time_sk
 ,i_item_sk cr_item_sk
@@ -266,9 +261,9 @@ FROM s_catalog_returns
 LEFT OUTER JOIN date_dim
 ON (cast(cret_return_date as date) = d_date)
 LEFT OUTER JOIN time_dim ON
-((CAST(substr(cret_return_time,1,2) AS integer)*3600
-+CAST(substr(cret_return_time,4,2) AS integer)*60
-+CAST(substr(cret_return_time,7,2) AS integer)) = t_time)
+((CAST(substr(cret_return_time,1,2) AS int)*3600
++CAST(substr(cret_return_time,4,2) AS int)*60
++CAST(substr(cret_return_time,7,2) AS int)) = t_time)
 LEFT OUTER JOIN item ON (cret_item_id = i_item_id)
 LEFT OUTER JOIN customer c1 ON (cret_return_customer_id = c1.c_customer_id)
 LEFT OUTER JOIN customer c2 ON (cret_refund_customer_id = c2.c_customer_id)
@@ -279,10 +274,9 @@ LEFT OUTER JOIN ship_mode ON (cret_shipmode_id = sm_ship_mode_id)
 LEFT OUTER JOIN warehouse ON (cret_warehouse_id = w_warehouse_id)
 WHERE i_rec_end_date IS NULL AND cc_rec_end_date IS NULL;
 
-INSERT INTO catalog_returns SELECT * FROM crv;
 
 --LF_I:
-CREATE view iv AS
+create or replace iv AS
 SELECT d_date_sk inv_date_sk,
 i_item_sk inv_item_sk,
 w_warehouse_sk inv_warehouse_sk,
@@ -292,6 +286,3 @@ LEFT OUTER JOIN warehouse ON (invn_warehouse_id=w_warehouse_id)
 LEFT OUTER JOIN item ON (invn_item_id=i_item_id AND i_rec_end_date IS NULL)
 LEFT OUTER JOIN date_dim ON (d_date=invn_date);
 
-INSERT INTO inventory SELECT * FROM iv;
-
---
