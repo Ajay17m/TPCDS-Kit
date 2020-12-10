@@ -321,10 +321,9 @@ function run_subset_tpcds_queries {
     logInfo "Running TPCDS queries. Will take a few minutes depending upon the number of queries specified.. "
     cd $TPCDS_ROOT_DIR/tools
     rm -f ${TPCDS_GENQUERIES_DIR}/*.sql
-    echo "./dsqgen –dir ${TPC_WORK_DIR} –scale ${SCALE}"
     echo `./dsqgen –dir ${TPC_WORK_DIR} –scale ${SCALE}`
     GENQUERIES=`ls ${TPCDS_GENQUERIES_DIR}|wc -l`
-    if [ "$GENQUERIES" -gt 99] ; then
+    if [ "$GENQUERIES" -eq 99] ; then
       for query_no in `cat ${TPCDS_WORK_DIR}/runlist.txt`
       do
         cp ${TPCDS_GENQUERIES_DIR}/query${query_no}.sql $TPCDS_WORK_DIR
@@ -358,10 +357,9 @@ function run_tpcds_queries {
     logInfo "Running TPCDS queries. Will take a few hours.. "
     cd $TPCDS_ROOT_DIR/tools
     rm -f ${TPCDS_GENQUERIES_DIR}/*.sql
-    echo "./dsqgen –dir ${TPCDS_WORK_DIR} –scale ${SCALE}"
     echo `./dsqgen –dir ${TPCDS_WORK_DIR} –scale ${SCALE}`
     GENQUERIES=`ls ${TPCDS_GENQUERIES_DIR}|wc -l`
-    if [ "$GENQUERIES" -gt 99 ] ; then
+    if [ "$GENQUERIES" -eq 99 ] ; then
       cp ${TPCDS_GENQUERIES_DIR}/*.sql $TPCDS_WORK_DIR
       run_tpcds_common
     else
@@ -470,8 +468,12 @@ function run_load_test {
 
 function run_power_test {
   run_tpcds_queries
-  cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/PT/
-  cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/PT/
+  if [ "$errorcode" -eq 0 ] ; then
+    cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/PT/
+    cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/PT/
+  else
+    logError "Power test failed.."
+  fi
 }
 
 function dm_test {
@@ -522,15 +524,31 @@ function dm_test {
 }
 function run_troughput_test {  
   run_tpcds_queries
-  cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT1/
-  cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT1/
-  dm_test
-  cp cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/DM1/
-  run_tpcds_queries
-  cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT2/
-  cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT2/
-  dm_test
-  cp cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/DM2/
+  if [ "$errorcode" -eq 0 ] ; then
+    cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT1/
+    cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT1/
+    dm_test
+    if [ "$errorcode" -eq 0 ] ; then
+      cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/DM1/
+      run_tpcds_queries
+      if [ "$errorcode" -eq 0 ] ; then
+        cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT2/
+        cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT2/
+      else
+        logError "PT Test 2 failed.."
+      fi
+        dm_test
+        if [ "$errorcode" -eq 0 ] ; then
+          cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/DM2/
+        else
+          logError "DM Test 2 failed.."
+        fi
+    else
+      logError "DM Test 1 failed.."
+    fi
+  else
+    logError "Queries failed.."
+  fi
 }
 
 ##AJ001 CHANGES END
