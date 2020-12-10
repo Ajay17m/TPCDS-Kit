@@ -261,7 +261,8 @@ function run_query2() {
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     logInfo "Running $1 tables. Will take a few minutes ..."
     ProgressBar 1 $2
-    spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive --conf spark.kryoserializer.buffer.max.mb=1024 -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
+    #spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive --conf spark.kryoserializer.buffer.max.mb=1024 -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
+    hive -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
     script_pid=$!
     cont=1
     error_code=0
@@ -434,7 +435,9 @@ function create_spark_tables {
     cd $TPCDS_ROOT_DIR/tools
     rm -f ${TPCDS_GENDATA_DIR}/*.dat
     echo `./dsdgen –dir ${TPCDS_GENDATA_DIR} –scale ${SCALE}`
-    run_query "CreateDataBase" 140
+    run_query "CreateDataBase" 1
+    run_query "CreateTextTables" 27
+    run_query "CreateACIDTables" 27
     cd $current_dir
   fi
 }
@@ -523,7 +526,9 @@ function dm_test {
     cd ${TPCDS_REFRESHDATA_DIR}
     rm -rf s_zip_to__${UPDATE}.dat s_customer_${UPDATE}.dat s_item_${UPDATE}.dat s_store_${UPDATE}.dat s_call_center_${UPDATE}.dat s_web_site_${UPDATE}.dat s_warehouse_${UPDATE}.dat s_web_page_${UPDATE}.dat s_promotion_${UPDATE}.dat s_catalog_page_${UPDATE}.dat
     cd $TPCDS_ROOT_DIR
+    run_query "CreateRefreshTables" 11
     run_query "RefreshData" 11
+    run_query "CreateRefreshACID" 11
     run_query2 "RefreshACID" 11
     if [ "$error_code" -ne 1 ] ; then
       run_query "DropTextTables" 10
