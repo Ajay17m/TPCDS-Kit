@@ -631,7 +631,7 @@ create table call_center
     cc_tax_percentage         double
 )
 clustered by (cc_division) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists catalog_page;
@@ -648,7 +648,7 @@ create table catalog_page
     cp_type                   string
 )
 clustered by (cp_department) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists catalog_returns;
@@ -683,7 +683,7 @@ create table catalog_returns
     cr_net_loss               double
 )
 clustered by (cr_warehouse_sk) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists catalog_sales;
@@ -725,7 +725,7 @@ create table catalog_sales
     cs_net_profit             double
 )
 clustered by (cs_warehouse_sk) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists customer;
@@ -751,7 +751,7 @@ create table customer
     c_last_review_date        string
 )
 clustered by (c_preferred_cust_flag) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists customer_address;
@@ -772,7 +772,7 @@ create table customer_address
     ca_location_type          string
 )
 clustered by (ca_country) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists customer_demographics;
@@ -789,7 +789,7 @@ create table customer_demographics
     cd_dep_college_count      int
 )
 clustered by (cd_marital_status) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists date_dim;
@@ -825,7 +825,7 @@ create table date_dim
     d_current_year            string
 )
 clustered by (d_year) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists household_demographics;
@@ -838,7 +838,7 @@ create table household_demographics
     hd_vehicle_count          int
 )
 clustered by (hd_income_band_sk) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists income_band;
@@ -849,7 +849,7 @@ create table income_band
     ib_upper_bound            int
 )
 clustered by (ib_income_band_sk) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists inventory;
@@ -861,7 +861,7 @@ create table inventory
     inv_quantity_on_hand      bigint
 )
 clustered by (inv_warehouse_sk) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists item;
@@ -891,7 +891,7 @@ create table item
     i_product_name            string
 )
 clustered by (i_category_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists promotion;
@@ -918,7 +918,7 @@ create table promotion
     p_discount_active         string
 )
 clustered by (p_item_sk) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists reason;
@@ -929,7 +929,7 @@ create table reason
     r_reason_desc             string
 )
 clustered by (r_reason_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists ship_mode;
@@ -943,7 +943,7 @@ create table ship_mode
     sm_contract               string
 )
 clustered by (sm_type) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists store;
@@ -980,7 +980,7 @@ create table store
     s_tax_precentage          double
 )
 clustered by (s_division_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists store_returns;
@@ -1008,7 +1008,7 @@ create table store_returns
     sr_net_loss               double
 )
 clustered by (sr_store_sk) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists store_sales;
@@ -1039,7 +1039,7 @@ create table store_sales
     ss_net_profit             double
 )
 clustered by (ss_store_sk) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists time_dim;
@@ -1057,7 +1057,7 @@ create table time_dim
     t_meal_time               string
 )
 clustered by (t_hour) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists warehouse;
@@ -1079,7 +1079,7 @@ create table warehouse
     w_gmt_offset              double
 )
 clustered by (w_country) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists web_page;
@@ -1101,7 +1101,7 @@ create table web_page
     wp_max_ad_count           int
 )
 clustered by (wp_type) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists web_returns;
@@ -1133,7 +1133,7 @@ create table web_returns
     wr_net_loss               double
 )
 clustered by (wr_web_page_sk) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists web_sales;
@@ -1175,7 +1175,7 @@ create table web_sales
     ws_net_profit             double
 )
 clustered by (ws_web_page_sk) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists web_site;
@@ -1209,7 +1209,7 @@ create table web_site
     web_tax_percentage        double
 )
 clustered by (web_name) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists s_purchase_lineitem_text;
@@ -1263,7 +1263,7 @@ create table s_web_order_text (
               word_order_time            int,
               word_ship_mode_id       string,
               word_web_site_id        string,
-              word_order_comments     string,
+              word_order_comments     string
               )
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
@@ -1398,7 +1398,7 @@ create table s_purchase_lineitem (
               plin_comment            string
              ) 
 clustered by (plin_promotion_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists s_purchase;
@@ -1413,7 +1413,7 @@ create table s_purchase (
               purc_comment            string
               )
 clustered by (purc_store_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists s_catalog_order;
@@ -1428,7 +1428,7 @@ create table s_catalog_order (
               cord_order_comments     string
               )
 clustered by (cord_ship_mode_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists s_web_order;
@@ -1440,10 +1440,10 @@ create table s_web_order (
               word_order_time            int,
               word_ship_mode_id       string,
               word_web_site_id        string,
-              word_order_comments     string,
+              word_order_comments     string
               )
 clustered by (word_web_site_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists s_catalog_order_lineitem;
@@ -1462,7 +1462,7 @@ create table s_catalog_order_lineitem (
               clin_ship_cost          double
               )
 clustered by (clin_warehouse_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists s_web_order_lineitem;
@@ -1480,7 +1480,7 @@ create table s_web_order_lineitem (
               wlin_web_page_id        string
               )
 clustered by (wlin_warehouse_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists s_store_returns;
@@ -1504,7 +1504,7 @@ create table s_store_returns (
               sret_reason_id          string
               )
 clustered by (sret_store_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists s_catalog_returns;
@@ -1531,7 +1531,7 @@ create table s_catalog_returns (
               cret_warehouse_id       string
               )
 clustered by (cret_warehouse_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists s_web_returns;
@@ -1555,7 +1555,7 @@ create table s_web_returns (
               wret_reason_id          string
               )
 clustered by (wret_web_page_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 
 drop table if exists s_inventory;
@@ -1566,6 +1566,6 @@ create table s_inventory (
               invn_qty_on_hand        int
               )
 clustered by (invn_warehouse_id) into 3 buckets 
-store as orc
+stored as orc
 tblproperties('transactiona'='true');
 

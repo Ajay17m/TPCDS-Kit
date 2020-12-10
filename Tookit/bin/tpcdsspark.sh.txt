@@ -95,7 +95,7 @@ check_createtables() {
   DRIVER_OPTIONS="--driver-memory 4g --driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
   EXECUTOR_OPTIONS="--executor-memory 2g --conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
   logInfo "Checking pre-reqs for running TPC-DS queries. May take a few seconds.."
-  bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/row_counts.sql > ${TPCDS_WORK_DIR}/rowcounts.out 2>&1
+  bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/row_counts.sql > ${TPCDS_WORK_DIR}/rowcounts.out 2>&1 &
   cat ${TPCDS_WORK_DIR}/rowcounts.out | grep -v "Time" | grep -v "SLF4J" >> ${TPCDS_WORK_DIR}/rowcounts.rrn
   file1=${TPCDS_WORK_DIR}/rowcounts.rrn
   file2=${TPCDS_ROOT_DIR}/src/rowcounts.expected
@@ -323,6 +323,7 @@ function create_spark_tables {
   result=$?
   if [ "$result" -ne 1 ]; then 
     current_dir=`pwd`
+    chmod 755 -R ${output_dir}/*
     cd $TPCDS_ROOT_DIR/tools
     rm -f ${TPCDS_GENDATA_DIR}/*.dat
     echo `./dsdgen –dir ${TPCDS_GENDATA_DIR} –scale ${SCALE}`
@@ -330,15 +331,15 @@ function create_spark_tables {
     DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     logInfo "Creating tables. Will take a few minutes ..."
-    ProgressBar 2 122
-    bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/CreateDataBase.sql > ${TPCDS_WORK_DIR}/CreateDataBase.out 2>&1
+    ProgressBar 2 140
+    bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/CreateDataBase.sql > ${TPCDS_WORK_DIR}/CreateDataBase.out 2>&1 &
     script_pid=$!
     cont=1
     error_code=0
     while [  $cont -gt 0 ]; do
       progress=`cat ${TPCDS_WORK_DIR}/CreateDataBase.out | grep -i "time taken" | wc -l`
       progress=`expr $progress + 2`
-      ProgressBar ${progress} 122
+      ProgressBar ${progress} 140
       if [ -e ${TPCDS_WORK_DIR}/CreateDataBase.out ]; then
         error_code=`cat ${TPCDS_WORK_DIR}/CreateDataBase.out | grep -i "error" | wc -l`
       fi
@@ -348,7 +349,7 @@ function create_spark_tables {
          error_code=1
       fi
  
-      if [ "$error_code" -gt 0 ] || [ "$progress" -gt 121 ] ; then 
+      if [ "$error_code" -gt 0 ] || [ "$progress" -gt 139 ] ; then 
         cont=-1
       fi
       sleep 0.1
@@ -390,19 +391,17 @@ function run_load_test {
     DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     logInfo "Creating tables. Will take a few minutes ..."
-    ProgressBar 2 122
-    bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/LoadGenData.sql > ${TPCDS_WORK_DIR}/LoadGenData.out 2>&1
-    script_pid=$!
-    bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/DropStageTables.sql > ${TPCDS_WORK_DIR}/DropStageTables.out 2>&1
+    ProgressBar 1 51
+    bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/LoadGenData.sql > ${TPCDS_WORK_DIR}/LoadGenData.out 2>&1 &
     script_pid=$!
     cont=1
     error_code=0
     while [  $cont -gt 0 ]; do
-      progress=`cat ${TPCDS_WORK_DIR}/CreateDataBase.out | grep -i "time taken" | wc -l`
+      progress=`cat ${TPCDS_WORK_DIR}/LoadGenData.out | grep -i "time taken" | wc -l`
       progress=`expr $progress + 2`
-      ProgressBar ${progress} 122
-      if [ -e ${TPCDS_WORK_DIR}/CreateDataBase.out ]; then
-        error_code=`cat ${TPCDS_WORK_DIR}/CreateDataBase.out | grep -i "error" | wc -l`
+      ProgressBar ${progress} 51
+      if [ -e ${TPCDS_WORK_DIR}/LoadGenData.out ]; then
+        error_code=`cat ${TPCDS_WORK_DIR}/LoadGenData.out | grep -i "error" | wc -l`
       fi
 
       ps -p $script_pid > /dev/null 
@@ -410,7 +409,7 @@ function run_load_test {
          error_code=1
       fi
  
-      if [ "$error_code" -gt 0 ] || [ "$progress" -gt 121 ] ; then 
+      if [ "$error_code" -gt 0 ] || [ "$progress" -gt 50 ] ; then 
         cont=-1
       fi
       sleep 0.1
@@ -423,6 +422,8 @@ function run_load_test {
     else
       echo ""
       cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/LT/
+      bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/DropStageTables.sql > ${TPCDS_WORK_DIR}/DropStageTables.out 2>&1 &
+      script_pid=$!
       logInfo "Load test completed successfully.."
     fi
     cd $current_dir
@@ -461,39 +462,39 @@ function dm_test {
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     logInfo "Creating tables. Will take a few minutes ..."
     ProgressBar 2 122
-    bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/RefreshData.sql > ${TPCDS_WORK_DIR}/RefreshData.out 2>&1
+    bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/RefreshData.sql > ${TPCDS_WORK_DIR}/RefreshData.out 2>&1 &
     script_pid=$!
-    bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/DropTextTables.sql > ${TPCDS_WORK_DIR}/DropTextTables.out 2>&1
-    script_pid=$!
-    bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/CreateViews.sql > ${TPCDS_WORK_DIR}/CreateViews.out 2>&1
-    script_pid=$!
-    while IFS="|" read -r date1 date2
-    do
+    if [ $? -ne 1]; then
+      bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/DropTextTables.sql > ${TPCDS_WORK_DIR}/DropTextTables.out 2>&1 &
+      script_pid=$!
+      bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/CreateViews.sql > ${TPCDS_WORK_DIR}/CreateViews.out 2>&1 &
+      script_pid=$!
+      while IFS="|" read -r date1 date2
+      do
         $1 >> ${TPCDS_WORK_DIR}/DataDelete.out
         $date1 >> ${TPCDS_WORK_DIR}/DataDelete.out
         $date2 >> ${TPCDS_WORK_DIR}/DataDelete.out
-        bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/DataDelete.sql >> ${TPCDS_WORK_DIR}/    DataDelete.out 2>&1
+        bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/DataDelete.sql >> ${TPCDS_WORK_DIR}/    DataDelete.out 2>&1 &
         script_pid=$!
-    done < ${TPCDS_REFRESHDATA_DIR}/delete_${UPDATE}.dat
+      done < ${TPCDS_REFRESHDATA_DIR}/delete_${UPDATE}.dat
 
-    while IFS="|" read -r date1 date2
-    do
+      while IFS="|" read -r date1 date2
+      do
         $1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
         $date1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
         $date2 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
-        execute 4.9_DM_Inventory_delete_Timed.sql
-        bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/InventoryDelete.sql >> ${TPCDS_WORK_DIR}/InventoryDelete.out 2>&1
+        bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/InventoryDelete.sql >> ${TPCDS_WORK_DIR}/InventoryDelete.out 2>&1 &
         script_pid=$!
-    done < ${TPCDS_REFRESHDATA_DIR}/inventory_delete_${UPDATE}.dat
-
+      done < ${TPCDS_REFRESHDATA_DIR}/inventory_delete_${UPDATE}.dat
+    fi
     cont=1
     error_code=0
     while [  $cont -gt 0 ]; do
-      progress=`cat ${TPCDS_WORK_DIR}/CreateDataBase.out | grep -i "time taken" | wc -l`
+      progress=`cat ${TPCDS_WORK_DIR}/RefreshData.out | grep -i "time taken" | wc -l`
       progress=`expr $progress + 2`
       ProgressBar ${progress} 122
-      if [ -e ${TPCDS_WORK_DIR}/CreateDataBase.out ]; then
-        error_code=`cat ${TPCDS_WORK_DIR}/CreateDataBase.out | grep -i "error" | wc -l`
+      if [ -e ${TPCDS_WORK_DIR}/RefreshData.out ]; then
+        error_code=`cat ${TPCDS_WORK_DIR}/RefreshData.out | grep -i "error" | wc -l`
       fi
 
       ps -p $script_pid > /dev/null 
