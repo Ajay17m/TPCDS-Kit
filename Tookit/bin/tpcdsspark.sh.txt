@@ -154,6 +154,12 @@ set_environment() {
   if [ -z "$TPCDS_WORK_DIR" ]; then
      TPCDS_WORK_DIR=${TPCDS_ROOT_DIR}/work
   fi  
+  if [ -z "$SCALE" ]; then
+     SCALE='1'
+  fi  
+  if [ -z "$UPDATE" ]; then
+     UPDATE='1'
+  fi  
 }
 
 check_environment() {
@@ -352,10 +358,10 @@ function run_tpcds_queries {
     logInfo "Running TPCDS queries. Will take a few hours.. "
     cd $TPCDS_ROOT_DIR/tools
     rm -f ${TPCDS_GENQUERIES_DIR}/*.sql
-    echo "./dsqgen –dir ${TPC_WORK_DIR} –scale ${SCALE}"
-    echo `./dsqgen –dir ${TPC_WORK_DIR} –scale ${SCALE}`
+    echo "./dsqgen –dir ${TPCDS_WORK_DIR} –scale ${SCALE}"
+    echo `./dsqgen –dir ${TPCDS_WORK_DIR} –scale ${SCALE}`
     GENQUERIES=`ls ${TPCDS_GENQUERIES_DIR}|wc -l`
-    if [ "$GENQUERIES" -gt 99] ; then
+    if [ "$GENQUERIES" -gt 99 ] ; then
       cp ${TPCDS_GENQUERIES_DIR}/*.sql $TPCDS_WORK_DIR
       run_tpcds_common
     else
