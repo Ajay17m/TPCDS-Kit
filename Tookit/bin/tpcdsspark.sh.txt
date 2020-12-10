@@ -252,6 +252,47 @@ function run_query() {
   return $error_code
 }
 
+function run_query2() {
+  if [ "$result" -ne 1 ]; then 
+    current_dir=`pwd`
+    cd $SPARK_HOME
+    DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
+    EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
+    logInfo "Creating $1 tables. Will take a few minutes ..."
+    ProgressBar 1 $2
+    spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
+    script_pid=$!
+    cont=1
+    error_code=0
+    while [  $cont -gt 0 ]; do
+      progress=`cat ${TPCDS_WORK_DIR}/$1.out | grep -i "time taken" | wc -l`
+      progress=`expr $progress + 2`
+      ProgressBar ${progress} $2
+      if [ -e ${TPCDS_WORK_DIR}/$1.out ]; then
+        error_code=`cat ${TPCDS_WORK_DIR}/$1.out | grep -i "error" | wc -l`
+      fi
+      ps -p $script_pid > /dev/null 
+      if [ $? == 1 ]; then
+         error_code=1
+      fi
+      if [ "$error_code" -gt 0 ] || [ "$progress" -gt `expr $2 - 1` ] ; then 
+        cont=-1
+      fi
+      sleep 0.1
+    done  
+    if [ "$error_code" -gt 0 ] ; then 
+      logError "Failed to create spark tables. Please review the following logs"
+      logError "${TPCDS_WORK_DIR}/$1.out"
+      logError "${TPCDS_LOG_DIR}/spark-tpcds.log"
+    else
+      echo ""
+      logInfo "SQL Ran successfully.."
+    fi
+  fi
+  return $error_code
+}
+
+
 function run_tpcds_common {
   output_dir=$TPCDS_WORK_DIR
   ${TPCDS_ROOT_DIR}/bin/runqueries.sh $SPARK_HOME $TPCDS_WORK_DIR $TPCDS_DBNAME > ${TPCDS_WORK_DIR}/runqueries.out 2>&1 &
@@ -429,27 +470,7 @@ function run_load_test {
       EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
       logInfo "Loading ACID tables. Will take a few minutes ..."
       ProgressBar 1 27
-      SQL="LoadACIDTable"
-      spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/${SQL}.sql > ${TPCDS_WORK_DIR}/${SQL}.out 2>&1 &
-      script_pid=$!
-      cont=1
-      error_code=0
-      while [  $cont -gt 0 ]; do
-        progress=`cat ${TPCDS_WORK_DIR}/${SQL}.out | grep -i "time taken" | wc -l`
-        progress=`expr $progress + 2`
-        ProgressBar ${progress} 27
-        if [ -e ${TPCDS_WORK_DIR}/${SQL}.out ]; then
-          error_code=`cat ${TPCDS_WORK_DIR}/${SQL}.out | grep -i "error" | wc -l`
-        fi
-        ps -p $script_pid > /dev/null 
-        if [ $? == 1 ]; then
-          error_code=1
-        fi
-        if [ "$error_code" -gt 0 ] || [ "$progress" -gt 26 ] ; then 
-          cont=-1
-        fi
-        sleep 0.1
-      done  
+      run_query2 "LoadACIDTable" 27
       if [ "$error_code" -gt 0 ] ; then 
         logError "Failed to create spark tables. Please review the following logs"
         logError "${TPCDS_WORK_DIR}/${SQL}.out"
@@ -498,9 +519,10 @@ function dm_test {
     rm -f ${TPCDS_REFRESHDATA_DIR}/*.dat
     echo `./dsdgen -UPDATE ${UPDATE} –dir ${TPCDS_REFRESHDATA_DIR} –scale ${SCALE}`
     cd ${TPCDS_REFRESHDATA_DIR}
-    rm -rf s_zip_to_*.dat s_customer*.dat s_item*.dat s_store*.dat s_call_center*.dat s_web_site*.dat s_warehouse*.dat s_web_page*.dat s_promotion*.dat s_catalog_page*.dat
+    rm -rf s_zip_to__${UPDATE}.dat s_customer_${UPDATE}.dat s_item_${UPDATE}.dat s_store_${UPDATE}.dat s_call_center_${UPDATE}.dat s_web_site_${UPDATE}.dat s_warehouse_${UPDATE}.dat s_web_page_${UPDATE}.dat s_promotion_${UPDATE}.dat s_catalog_page_${UPDATE}.dat
     cd $TPCDS_ROOT_DIR
-    run_query "RefreshData" 20
+    run_query "RefreshData" 11
+    run_query2 "RefreshACID" 11
     if [ "$error_code" -ne 1 ] ; then
       run_query "DropTextTables" 10
       run_query "CreateViews" 7
