@@ -393,7 +393,7 @@ function run_load_test {
   result=$?
   if [ "$result" -ne 1 ]; then 
     current_dir=`pwd`
-    run_query "LoadGenData" 140
+    run_query "LoadGenData" 26
     if [ "$error_code" -gt 0 ] ; then
       logError "Failed to create spark tables. Please review the following logs"
       logError "${TPCDS_WORK_DIR}/LoadGenData.out"
@@ -403,8 +403,8 @@ function run_load_test {
       cd $SPARK_HOME
       DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
       EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
-      logInfo "Creating tables. Will take a few minutes ..."
-      ProgressBar 1 51
+      logInfo "Loading ACID tables. Will take a few minutes ..."
+      ProgressBar 1 26
       SQL="LoadACIDTable"
       spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/${SQL}.sql > ${TPCDS_WORK_DIR}/${SQL}.out 2>&1 &
       script_pid=$!
@@ -413,7 +413,7 @@ function run_load_test {
       while [  $cont -gt 0 ]; do
         progress=`cat ${TPCDS_WORK_DIR}/${SQL}.out | grep -i "time taken" | wc -l`
         progress=`expr $progress + 2`
-        ProgressBar ${progress} 51
+        ProgressBar ${progress} 26
         if [ -e ${TPCDS_WORK_DIR}/${SQL}.out ]; then
           error_code=`cat ${TPCDS_WORK_DIR}/${SQL}.out | grep -i "error" | wc -l`
         fi
@@ -421,7 +421,7 @@ function run_load_test {
         if [ $? == 1 ]; then
           error_code=1
         fi
-       if [ "$error_code" -gt 0 ] || [ "$progress" -gt 50 ] ; then 
+       if [ "$error_code" -gt 0 ] || [ "$progress" -gt 25 ] ; then 
          cont=-1
        fi
        sleep 0.1
@@ -434,7 +434,7 @@ function run_load_test {
       else
        echo ""
        cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/LT/
-       bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/DropStageTables.sql > ${TPCDS_WORK_DIR}/DropStageTables.out 2>&1
+       run_query "DropStageTables" 26
        logInfo "Load test completed successfully.."
       fi
       cd $current_dir
@@ -469,7 +469,7 @@ function dm_test {
     cd $TPCDS_ROOT_DIR/tools
     rm -f ${TPCDS_REFRESHDATA_DIR}/*.dat
     echo `./dsdgen -UPDATE ${UPDATE} –dir ${TPCDS_REFRESHDATA_DIR} –scale ${SCALE}`
-    run_query "RefreshData" 122
+    run_query "RefreshData" 20
     if [ "$error_code" -ne 1]; then
       run_query "DropTextTables" 10
       run_query "CreateViews" 7
