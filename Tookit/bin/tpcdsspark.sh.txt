@@ -306,6 +306,7 @@ function run_subset_tpcds_queries {
     baseName="$(basename $i)"
     template $i > ${output_dir}/$baseName
   done 
+  template ${TPCDS_ROOT_DIR}/src/row_counts.sql > ${output_dir}/row_counts.sql
   check_prereq "2"
   result=$?
   
@@ -333,6 +334,7 @@ function run_tpcds_queries {
   done 
   # 1 add to 99 queries to signal the end of the run to progress bar
   NUM_QUERIES=100
+  template ${TPCDS_ROOT_DIR}/src/row_counts.sql > ${output_dir}/row_counts.sql
   check_prereq "3"
   result=$?
   if [ "$result" -ne 1 ]; then 
@@ -404,7 +406,7 @@ function run_load_test {
       DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
       EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
       logInfo "Loading ACID tables. Will take a few minutes ..."
-      ProgressBar 1 26
+      ProgressBar 1 47
       SQL="LoadACIDTable"
       spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/${SQL}.sql > ${TPCDS_WORK_DIR}/${SQL}.out 2>&1 &
       script_pid=$!
@@ -413,7 +415,7 @@ function run_load_test {
       while [  $cont -gt 0 ]; do
         progress=`cat ${TPCDS_WORK_DIR}/${SQL}.out | grep -i "time taken" | wc -l`
         progress=`expr $progress + 2`
-        ProgressBar ${progress} 26
+        ProgressBar ${progress} 47
         if [ -e ${TPCDS_WORK_DIR}/${SQL}.out ]; then
           error_code=`cat ${TPCDS_WORK_DIR}/${SQL}.out | grep -i "error" | wc -l`
         fi
@@ -421,7 +423,7 @@ function run_load_test {
         if [ $? == 1 ]; then
           error_code=1
         fi
-       if [ "$error_code" -gt 0 ] || [ "$progress" -gt 25 ] ; then 
+       if [ "$error_code" -gt 0 ] || [ "$progress" -gt 46 ] ; then 
          cont=-1
        fi
        sleep 0.1
