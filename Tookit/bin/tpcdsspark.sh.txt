@@ -497,7 +497,9 @@ function dm_test {
     cd $TPCDS_ROOT_DIR/tools
     rm -f ${TPCDS_REFRESHDATA_DIR}/*.dat
     echo `./dsdgen -UPDATE ${UPDATE} –dir ${TPCDS_REFRESHDATA_DIR} –scale ${SCALE}`
+    cd ${TPCDS_REFRESHDATA_DIR}
     rm -rf s_zip_to_*.dat s_customer*.dat s_item*.dat s_store*.dat s_call_center*.dat s_web_site*.dat s_warehouse*.dat s_web_page*.dat s_promotion*.dat s_catalog_page*.dat
+    cd $TPCDS_ROOT_DIR
     run_query "RefreshData" 20
     if [ "$error_code" -ne 1 ] ; then
       run_query "DropTextTables" 10
