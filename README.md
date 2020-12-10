@@ -1,5 +1,5 @@
 # TPCDS-Kit
-Spark performance testing
+Spark performance benchmarking for ML Ops
 
 Step1:
 Setup enviroment varianles in "bin/tpcdsenv.sh" 
