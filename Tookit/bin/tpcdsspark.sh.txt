@@ -95,8 +95,9 @@ check_createtables() {
   DRIVER_OPTIONS="--driver-memory 4g --driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
   EXECUTOR_OPTIONS="--executor-memory 2g --conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
   logInfo "Checking pre-reqs for running TPC-DS queries. May take a few seconds.."
-  bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/row_counts.sql > ${TPCDS_WORK_DIR}/rowcounts.out 2>&1
-  cat ${TPCDS_WORK_DIR}/rowcounts.out | grep -v "Time" | grep -v "SLF4J" >> ${TPCDS_WORK_DIR}/rowcounts.rrn
+  #bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/row_counts.sql > ${TPCDS_WORK_DIR}/rowcounts.out 2>&1
+  hive -f ${TPCDS_WORK_DIR}/row_counts.sql > ${TPCDS_WORK_DIR}/rowcounts.out 2>&1
+  cat ${TPCDS_WORK_DIR}/rowcounts.out | grep "^[0-9]" >> ${TPCDS_WORK_DIR}/rowcounts.rrn
   file1=${TPCDS_WORK_DIR}/rowcounts.rrn
   file2=${TPCDS_ROOT_DIR}/src/rowcounts.expected
   if cmp -s "$file1" "$file2"
@@ -218,7 +219,7 @@ function run_query() {
     cd $SPARK_HOME
     DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
-    logInfo "Running $1 tables. Will take a few minutes ..."
+    logInfo "Running $1"
     ProgressBar 1 $2
     bin/spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
     script_pid=$!
@@ -259,7 +260,7 @@ function run_query2() {
     cd $SPARK_HOME
     DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
     EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
-    logInfo "Running $1 tables. Will take a few minutes ..."
+    logInfo "Running $1"
     ProgressBar 1 $2
     #spark-sql ${DRIVER_OPTIONS} ${EXECUTOR_OPTIONS} --conf spark.sql.catalogImplementation=hive --conf spark.kryoserializer.buffer.max.mb=1024 -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
     hive -f ${TPCDS_WORK_DIR}/$1.sql > ${TPCDS_WORK_DIR}/$1.out 2>&1 &
@@ -435,9 +436,11 @@ function create_spark_tables {
     cd $TPCDS_ROOT_DIR/tools
     rm -f ${TPCDS_GENDATA_DIR}/*.dat
     echo `./dsdgen –dir ${TPCDS_GENDATA_DIR} –scale ${SCALE}`
-    run_query "CreateDataBase" 1
-    run_query "CreateTextTables" 27
-    run_query "CreateACIDTables" 27
+    run_query2 "CreateDataBase" 3
+    echo ""
+    run_query2 "CreateTextTables" 26
+    echo ""
+    run_query2 "CreateACIDTables" 26
     cd $current_dir
   fi
 }
@@ -463,33 +466,22 @@ function run_load_test {
   result=$?
   if [ "$result" -ne 1 ]; then 
     current_dir=`pwd`
-    run_query "LoadGenData" 26
+    run_query2 "LoadGenData" 27
     if [ "$error_code" -gt 0 ] ; then
-      logError "Failed to create spark tables. Please review the following logs"
-      logError "${TPCDS_WORK_DIR}/LoadGenData.out"
-      logError "${TPCDS_WORK_DIR}/DropStageTables.out"
-      logError "${TPCDS_LOG_DIR}/spark-tpcds.log"
+      logError "Failed to load text tables. "
     else
-      cd $SPARK_HOME
-      DRIVER_OPTIONS="--driver-java-options -Dlog4j.configuration=file:///${output_dir}/log4j.properties"
-      EXECUTOR_OPTIONS="--conf spark.executor.extraJavaOptions=-Dlog4j.configuration=file:///${output_dir}/log4j.properties"
-      logInfo "Loading ACID tables. Will take a few minutes ..."
-      ProgressBar 1 27
       run_query2 "LoadACIDTable" 27
       if [ "$error_code" -gt 0 ] ; then 
-        logError "Failed to create spark tables. Please review the following logs"
-        logError "${TPCDS_WORK_DIR}/${SQL}.out"
-        logError "${TPCDS_WORK_DIR}/DropStageTables.out"
-        logError "${TPCDS_LOG_DIR}/spark-tpcds.log"
+        logError "Failed to load data tables. "
       else
         echo ""
         cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/LT/
-        run_query "DropStageTables" 26
+        run_query2 "DropStageTables" 27
         logInfo "Load test completed successfully.."
       fi
-      cd $current_dir
     fi
   fi
+  cd $current_dir
 }
 
 function run_power_test {
@@ -526,32 +518,36 @@ function dm_test {
     cd ${TPCDS_REFRESHDATA_DIR}
     rm -rf s_zip_to__${UPDATE}.dat s_customer_${UPDATE}.dat s_item_${UPDATE}.dat s_store_${UPDATE}.dat s_call_center_${UPDATE}.dat s_web_site_${UPDATE}.dat s_warehouse_${UPDATE}.dat s_web_page_${UPDATE}.dat s_promotion_${UPDATE}.dat s_catalog_page_${UPDATE}.dat
     cd $TPCDS_ROOT_DIR
-    run_query "CreateRefreshTables" 11
-    run_query "RefreshData" 11
-    run_query "CreateRefreshACID" 11
-    run_query2 "RefreshACID" 11
+    run_query2 "CreateRefreshTables" 23
+    run_query2 "RefreshData" 13
+    run_query2 "CreateRefreshACID" 23
+    run_query2 "RefreshACID" 13
     if [ "$error_code" -ne 1 ] ; then
-      run_query "DropTextTables" 10
+      run_query2 "DropTextTables" 13
       run_query2 "CreateViews" 7
       run_query2 "InsertFromViews" 7
       error_code=$?
       if [ "$error_code" -ne 1 ] ; then
+        SQL='DataDelete'
+        echo "USE ${TPCDS_DBNAME}" > ${SQL}.sql
         while IFS="|" read -r date1 date2
         do
-          echo $1 >> ${TPCDS_WORK_DIR}/DataDelete.out
-          echo $date1 >> ${TPCDS_WORK_DIR}/DataDelete.out
-          echo $date2 >> ${TPCDS_WORK_DIR}/DataDelete.out
-          template ${TPCDS_ROOT_DIR}/src/DM/DataDelete.sql > ${output_dir}/DataDelete.sql
-          run_query2 "DataDelete" 7
+          echo $1 >> ${TPCDS_WORK_DIR}/${SQL}.out
+          echo $date1 >> ${TPCDS_WORK_DIR}/${SQL}.out
+          echo $date2 >> ${TPCDS_WORK_DIR}/${SQL}.out
+          template ${TPCDS_ROOT_DIR}/src/DM/${SQL}.sql >> ${output_dir}/${SQL}.sql
         done < ${TPCDS_REFRESHDATA_DIR}/delete_${UPDATE}.dat
+        SQL='InventoryDelete'
+        echo "USE ${TPCDS_DBNAME}" > ${SQL}.sql
         while IFS="|" read -r date1 date2
         do
-          echo $1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
-          echo $date1 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
-          echo $date2 >> ${TPCDS_WORK_DIR}/InventoryDelete.out
-          template ${TPCDS_ROOT_DIR}/src/DM/DataDelete.sql > ${output_dir}/InventoryDelete.sql
-          run_query2 "InventoryDelete" 7
+          echo $1 >> ${TPCDS_WORK_DIR}/${SQL}.out
+          echo $date1 >> ${TPCDS_WORK_DIR}/${SQL}.out
+          echo $date2 >> ${TPCDS_WORK_DIR}/${SQL}.out
+          template ${TPCDS_ROOT_DIR}/src/DM/${SQL}.sql >> ${output_dir}/${SQL}.sql
         done < ${TPCDS_REFRESHDATA_DIR}/inventory_delete_${UPDATE}.dat
+        run_query2 "DataDelete" 21
+        run_query2 "InventoryDelete" 6
       else
         logerror 'Failed to create views'
       fi
@@ -560,14 +556,18 @@ function dm_test {
   fi
 }
 function run_troughput_test {
+  error_code=0
   run_tpcds_queries
+  error_code=$?
   if [ "$error_code" -eq 0 ] ; then
     cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT1/
     cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT1/
     dm_test
+    error_code=$?
     if [ "$error_code" -eq 0 ] ; then
       cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/DM1/
       run_tpcds_queries
+      error_code=$?
       if [ "$error_code" -eq 0 ] ; then
         cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT2/
         cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT2/
@@ -575,6 +575,7 @@ function run_troughput_test {
         logError "PT Test 2 failed.."
       fi
         dm_test
+        error_code=$?
         if [ "$error_code" -eq 0 ] ; then
           cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/DM2/
         else

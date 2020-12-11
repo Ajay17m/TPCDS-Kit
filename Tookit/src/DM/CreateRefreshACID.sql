@@ -13,7 +13,7 @@ create table s_purchase_lineitem (
              ) 
 clustered by (plin_promotion_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists s_purchase;
 create table s_purchase (  
@@ -28,7 +28,7 @@ create table s_purchase (
               )
 clustered by (purc_store_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists s_catalog_order;
 create table s_catalog_order (  
@@ -43,7 +43,7 @@ create table s_catalog_order (
               )
 clustered by (cord_ship_mode_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists s_web_order;
 create table s_web_order (  
@@ -58,7 +58,7 @@ create table s_web_order (
               )
 clustered by (word_web_site_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists s_catalog_order_lineitem;
 create table s_catalog_order_lineitem (  
@@ -77,7 +77,7 @@ create table s_catalog_order_lineitem (
               )
 clustered by (clin_warehouse_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists s_web_order_lineitem;
 create table s_web_order_lineitem (  
@@ -95,7 +95,7 @@ create table s_web_order_lineitem (
               )
 clustered by (wlin_warehouse_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists s_store_returns;
 create table s_store_returns (  
@@ -119,7 +119,7 @@ create table s_store_returns (
               )
 clustered by (sret_store_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists s_catalog_returns;
 create table s_catalog_returns (  
@@ -146,7 +146,7 @@ create table s_catalog_returns (
               )
 clustered by (cret_warehouse_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists s_web_returns;
 create table s_web_returns (  
@@ -170,7 +170,7 @@ create table s_web_returns (
               )
 clustered by (wret_web_page_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists s_inventory;
 create table s_inventory (  
@@ -181,4 +181,4 @@ create table s_inventory (
               )
 clustered by (invn_warehouse_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');

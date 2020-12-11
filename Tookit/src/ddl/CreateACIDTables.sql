@@ -37,7 +37,7 @@ create table call_center
 )
 clustered by (cc_division) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists catalog_page;
 create table catalog_page
@@ -54,7 +54,7 @@ create table catalog_page
 )
 clustered by (cp_department) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists catalog_returns;
 create table catalog_returns
@@ -89,7 +89,7 @@ create table catalog_returns
 )
 clustered by (cr_warehouse_sk) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists catalog_sales;
 create table catalog_sales
@@ -131,7 +131,7 @@ create table catalog_sales
 )
 clustered by (cs_warehouse_sk) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists customer;
 create table customer
@@ -157,7 +157,7 @@ create table customer
 )
 clustered by (c_preferred_cust_flag) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists customer_address;
 create table customer_address
@@ -178,7 +178,7 @@ create table customer_address
 )
 clustered by (ca_country) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists customer_demographics;
 create table customer_demographics
@@ -195,7 +195,7 @@ create table customer_demographics
 )
 clustered by (cd_marital_status) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists date_dim;
 create table date_dim
@@ -231,7 +231,7 @@ create table date_dim
 )
 clustered by (d_year) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists household_demographics;
 create table household_demographics
@@ -244,7 +244,7 @@ create table household_demographics
 )
 clustered by (hd_income_band_sk) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists income_band;
 create table income_band
@@ -255,7 +255,7 @@ create table income_band
 )
 clustered by (ib_income_band_sk) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists inventory;
 create table inventory
@@ -267,7 +267,7 @@ create table inventory
 )
 clustered by (inv_warehouse_sk) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists item;
 create table item
@@ -297,7 +297,7 @@ create table item
 )
 clustered by (i_category_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists promotion;
 create table promotion
@@ -324,7 +324,7 @@ create table promotion
 )
 clustered by (p_item_sk) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists reason;
 create table reason
@@ -335,7 +335,7 @@ create table reason
 )
 clustered by (r_reason_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists ship_mode;
 create table ship_mode
@@ -349,7 +349,7 @@ create table ship_mode
 )
 clustered by (sm_type) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists store;
 create table store
@@ -386,7 +386,7 @@ create table store
 )
 clustered by (s_division_id) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists store_returns;
 create table store_returns
@@ -414,7 +414,7 @@ create table store_returns
 )
 clustered by (sr_store_sk) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists store_sales;
 create table store_sales
@@ -445,7 +445,7 @@ create table store_sales
 )
 clustered by (ss_store_sk) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists time_dim;
 create table time_dim
@@ -463,7 +463,7 @@ create table time_dim
 )
 clustered by (t_hour) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists warehouse;
 create table warehouse
@@ -485,7 +485,7 @@ create table warehouse
 )
 clustered by (w_country) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists web_page;
 create table web_page
@@ -507,7 +507,7 @@ create table web_page
 )
 clustered by (wp_type) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists web_returns;
 create table web_returns
@@ -539,7 +539,7 @@ create table web_returns
 )
 clustered by (wr_web_page_sk) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists web_sales;
 create table web_sales
@@ -581,7 +581,7 @@ create table web_sales
 )
 clustered by (ws_web_page_sk) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
 
 drop table if exists web_site;
 create table web_site
@@ -615,4 +615,4 @@ create table web_site
 )
 clustered by (web_name) into 3 buckets 
 stored as orc
-tblproperties('transactiona'='true');
+tblproperties('transactional'='true');
