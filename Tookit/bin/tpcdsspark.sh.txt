@@ -475,7 +475,7 @@ function run_load_test {
         logError "Failed to load data tables. "
       else
         echo ""
-        cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/LT/
+        cp ${output_dir}/*.out $TPCDS_ROOT_DIR/TestResults/LT/
         run_query2 "DropStageTables" 27
         logInfo "Load test completed successfully.."
       fi
@@ -487,8 +487,8 @@ function run_load_test {
 function run_power_test {
   run_tpcds_queries
   if [ "$error_code" -eq 0 ] ; then
-    cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/PT/
-    cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/PT/
+    cp ${output_dir}/query*.res $TPCDS_ROOT_DIR/TestResults/PT/
+    cp ${output_dir}/run_summary.txt $TPCDS_ROOT_DIR/TestResults/PT/
   else
     logError "Power test failed.."
   fi
@@ -560,24 +560,24 @@ function run_troughput_test {
   run_tpcds_queries
   error_code=$?
   if [ "$error_code" -eq 0 ] ; then
-    cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT1/
-    cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT1/
+    cp ${output_dir}/query*.res $TPCDS_ROOT_DIR/TestResults/TT1/
+    cp ${output_dir}/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT1/
     dm_test
     error_code=$?
     if [ "$error_code" -eq 0 ] ; then
-      cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/DM1/
+      cp ${output_dir}/*.out $TPCDS_ROOT_DIR/TestResults/DM1/
       run_tpcds_queries
       error_code=$?
       if [ "$error_code" -eq 0 ] ; then
-        cp $TPCDS_WORK_DIR/query*.res $TPCDS_ROOT_DIR/TestResults/TT2/
-        cp $TPCDS_WORK_DIR/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT2/
+        cp ${output_dir}/query*.res $TPCDS_ROOT_DIR/TestResults/TT2/
+        cp ${output_dir}/run_summary.txt $TPCDS_ROOT_DIR/TestResults/TT2/
       else
         logError "PT Test 2 failed.."
       fi
         dm_test
         error_code=$?
         if [ "$error_code" -eq 0 ] ; then
-          cp $TPCDS_WORK_DIR/*.out $TPCDS_ROOT_DIR/TestResults/DM2/
+          cp ${output_dir}/*.out $TPCDS_ROOT_DIR/TestResults/DM2/
         else
           logError "DM Test 2 failed.."
         fi

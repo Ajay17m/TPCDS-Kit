@@ -19,7 +19,7 @@ export TPCDS_LOG_DIR=
 export TPCDS_DBNAME=
 export TPCDS_WORK_DIR=
 
-export ADDITION_SPARK_OPTIONS=
+export ADDITION_SPARK_OPTIONS="--conf hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager"
 
 #ADDED PARAMETERS
 export SCALE=
